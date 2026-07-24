@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Symphony of Nations — Model United Nations</title>
+<meta name="description" content="Symphony of Nations MUN — Where diplomacy meets harmony. Leadership is not about being the loudest voice, but about bringing every voice together.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-deep: #0a0a0f;
+    --bg-card: #111118;
+    --bg-elevated: #1a1a22;
+    --text-primary: #f5f5f7;
+    --text-secondary: #a1a1aa;
+    --text-muted: #71717a;
+    --accent: #e8e8ec;
+    --accent-dim: #d4d4d8;
+    --accent-blue: #60a5fa;
+    --border: rgba(255,255,255,0.07);
+    --border-hover: rgba(255,255,255,0.2);
+    --shadow: 0 8px 32px rgba(0,0,0,0.5);
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    line-height: 1.7;
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  /* Floating notes background */
+  .notes-bg {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+  .floating-note {
+    position: absolute;
+    color: var(--accent);
+    opacity: 0.035;
+    font-size: 24px;
+    animation: float 20s infinite ease-in-out;
+    user-select: none;
+  }
+  .floating-note:nth-child(1) { left: 5%; top: 10%; animation-delay: 0s; font-size: 32px; }
+  .floating-note:nth-child(2) { left: 85%; top: 20%; animation-delay: 3s; font-size: 28px; }
+  .floating-note:nth-child(3) { left: 15%; top: 60%; animation-delay: 7s; font-size: 36px; }
+  .floating-note:nth-child(4) { left: 75%; top: 70%; animation-delay: 5s; font-size: 24px; }
+  .floating-note:nth-child(5) { left: 45%; top: 40%; animation-delay: 2s; font-size: 30px; }
+  .floating-note:nth-child(6) { left: 90%; top: 85%; animation-delay: 9s; font-size: 26px; }
+  .floating-note:nth-child(7) { left: 25%; top: 85%; animation-delay: 4s; font-size: 34px; }
+  .floating-note:nth-child(8) { left: 60%; top: 15%; animation-delay: 6s; font-size: 22px; }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    33% { transform: translateY(-30px) rotate(5deg); }
+    66% { transform: translateY(15px) rotate(-3deg); }
+  }
+
+  /* Container */
+  .container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 24px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Header / Logo */
+  .hero {
+    text-align: center;
+    padding: 80px 0 40px;
+    position: relative;
+  }
+  .hero-logo {
+    width: 160px;
+    height: 160px;
+    margin: 0 auto 24px;
+    filter: drop-shadow(0 0 30px rgba(255,255,255,0.08));
+    animation: breathe 4s ease-in-out infinite;
+  }
+  @keyframes breathe {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.03); }
+  }
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 42px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+    line-height: 1.1;
+  }
+  .hero .subtitle {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 500;
+    margin-bottom: 28px;
+  }
+  .hero-slogan {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 18px;
+    color: var(--text-secondary);
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px 28px;
+    border-left: 2px solid var(--accent);
+    border-right: 2px solid var(--accent);
+    line-height: 1.6;
+    opacity: 0;
+    animation: fadeInUp 1s ease 0.5s forwards;
+  }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Piano divider */
+  .piano-divider {
+    display: flex;
+    height: 28px;
+    margin: 48px 0;
+    gap: 2px;
+    opacity: 0;
+    animation: fadeIn 1s ease 0.8s forwards;
+  }
+  @keyframes fadeIn { to { opacity: 1; } }
+  .piano-key {
+    flex: 1;
+    border-radius: 2px;
+    transition: var(--transition);
+  }
+  .piano-key.white {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .piano-key.black {
+    background: var(--accent);
+    opacity: 0.5;
+  }
+  .piano-divider:hover .piano-key.black {
+    opacity: 0.9;
+    box-shadow: 0 0 16px rgba(255,255,255,0.15);
+  }
+
+  /* Section styling */
+  .section {
+    margin-bottom: 56px;
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+  .section.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-header svg {
+    width: 26px;
+    height: 26px;
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+  .section-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: 0.02em;
+  }
+  .section p {
+    color: var(--text-secondary);
+    font-size: 15.5px;
+    margin-bottom: 14px;
+  }
+  .section h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 28px 0 14px;
+  }
+
+  /* Concept box */
+  .concept-box {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 28px 32px;
+    margin: 24px 0;
+    text-align: center;
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 18px;
+    color: var(--text-primary);
+    position: relative;
+    overflow: hidden;
+    transition: var(--transition);
+  }
+  .concept-box::before {
+    content: '"';
+    position: absolute;
+    top: -10px;
+    left: 16px;
+    font-size: 80px;
+    color: var(--accent);
+    opacity: 0.12;
+    font-family: 'Playfair Display', serif;
+    line-height: 1;
+  }
+  .concept-box:hover {
+    border-color: var(--border-hover);
+    box-shadow: 0 4px 24px rgba(255,255,255,0.04);
+  }
+
+  /* Roles grid */
+  .roles-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin: 20px 0;
+  }
+  .role-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 24px 20px;
+    text-align: center;
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+  }
+  .role-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transition: transform 0.4s ease;
+  }
+  .role-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--border-hover);
+    box-shadow: var(--shadow);
+  }
+  .role-card:hover::after {
+    transform: scaleX(1);
+  }
+  .role-icon {
+    font-size: 32px;
+    margin-bottom: 12px;
+    display: block;
+  }
+  .role-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: var(--text-primary);
+  }
+  .role-musical {
+    font-size: 13px;
+    color: var(--accent);
+    font-style: italic;
+    font-family: 'Playfair Display', serif;
+    margin-bottom: 10px;
+  }
+  .role-card p {
+    font-size: 13.5px;
+    color: var(--text-muted);
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  /* Ceremonies */
+  .ceremonies-row {
+    display: flex;
+    gap: 16px;
+    margin: 20px 0;
+  }
+  .ceremony-card {
+    flex: 1;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 24px 20px;
+    text-align: center;
+    transition: var(--transition);
+    position: relative;
+  }
+  .ceremony-card:hover {
+    border-color: var(--border-hover);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow);
+  }
+  .ceremony-card .ceremony-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--accent);
+    opacity: 0.15;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .ceremony-name {
+    font-family: 'Playfair Display', serif;
+    font-weight: 600;
+    font-size: 16px;
+    margin-bottom: 8px;
+    color: var(--text-primary);
+  }
+  .ceremony-desc {
+    font-size: 13.5px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  /* Benefits */
+  .benefits-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    margin: 20px 0;
+  }
+  .benefit-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 16px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    transition: var(--transition);
+  }
+  .benefit-card:hover {
+    border-color: var(--border-hover);
+    background: var(--bg-elevated);
+  }
+  .benefit-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+    min-width: 32px;
+    opacity: 0.5;
+  }
+  .benefit-text {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  /* Committees */
+  .committee-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 20px 0;
+  }
+  .committee-item {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: var(--bg-card);
+    transition: var(--transition);
+  }
+  .committee-item:hover {
+    border-color: rgba(255,255,255,0.1);
+  }
+  .committee-item.open {
+    border-color: var(--border-hover);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  }
+  .committee-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    cursor: pointer;
+    transition: background 0.25s ease;
+    user-select: none;
+  }
+  .committee-header:hover {
+    background: var(--bg-elevated);
+  }
+  .committee-name {
+    font-weight: 500;
+    font-size: 15.5px;
+    color: var(--text-primary);
+  }
+  .committee-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .committee-tag {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-weight: 500;
+    letter-spacing: 0.03em;
+  }
+  .committee-tag.classic {
+    background: rgba(96,165,250,0.12);
+    color: var(--accent-blue);
+  }
+  .committee-tag.new {
+    background: rgba(255,255,255,0.08);
+    color: var(--accent);
+    border: 1px solid rgba(255,255,255,0.12);
+  }
+  .toggle-icon {
+    width: 18px;
+    height: 18px;
+    color: var(--text-muted);
+    transition: transform 0.3s ease;
+    flex-shrink: 0;
+  }
+  .committee-item.open .toggle-icon {
+    transform: rotate(180deg);
+    color: var(--accent);
+  }
+  .committee-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), padding 0.4s ease;
+    padding: 0 20px;
+  }
+  .committee-item.open .committee-body {
+    max-height: 400px;
+    padding: 0 20px 18px;
+  }
+  .committee-body p {
+    font-size: 14.5px;
+    color: var(--text-secondary);
+    margin: 0;
+    line-height: 1.7;
+  }
+
+  /* Registration */
+  .reg-section {
+    text-align: center;
+    padding: 56px 0 80px;
+    margin-top: 48px;
+    border-top: 1px solid var(--border);
+    position: relative;
+  }
+  .reg-section h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: var(--text-primary);
+  }
+  .reg-section > p {
+    color: var(--text-secondary);
+    max-width: 480px;
+    margin: 0 auto 28px;
+    font-size: 15px;
+  }
+  .reg-buttons {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .btn {
+    padding: 14px 32px;
+    border-radius: var(--radius-md);
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1.5px solid var(--accent);
+    background: transparent;
+    color: var(--accent);
+    transition: var(--transition);
+    font-family: 'Inter', sans-serif;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+    display: inline-block;
+  }
+  .btn:hover {
+    background: var(--accent);
+    color: var(--bg-deep);
+    box-shadow: 0 4px 24px rgba(255,255,255,0.15);
+    transform: translateY(-2px);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: var(--bg-deep);
+  }
+  .btn-primary:hover {
+    background: #ffffff;
+    border-color: #ffffff;
+    box-shadow: 0 4px 28px rgba(255,255,255,0.25);
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 32px 0;
+    border-top: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 13px;
+  }
+  .footer .footer-notes {
+    font-size: 20px;
+    margin-bottom: 8px;
+    opacity: 0.2;
+    letter-spacing: 0.3em;
+  }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .hero { padding: 48px 0 32px; }
+    .hero h1 { font-size: 28px; }
+    .hero-logo { width: 120px; height: 120px; }
+    .roles-grid { grid-template-columns: 1fr; }
+    .ceremonies-row { flex-direction: column; }
+    .benefits-grid { grid-template-columns: 1fr; }
+    .section-header h2 { font-size: 20px; }
+    .concept-box { font-size: 16px; padding: 20px; }
+    .reg-section h2 { font-size: 22px; }
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-track { background: var(--bg-deep); }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
+</style>
+<base target="_blank">
+</head>
+<body>
+
+<!-- Floating decorative notes -->
+<div class="notes-bg" aria-hidden="true">
+  <div class="floating-note">♪</div>
+  <div class="floating-note">♫</div>
+  <div class="floating-note">♩</div>
+  <div class="floating-note">♬</div>
+  <div class="floating-note">♭</div>
+  <div class="floating-note">♮</div>
+  <div class="floating-note">♯</div>
+  <div class="floating-note">𝄞</div>
+</div>
+
+<div class="container">
+
+  <!-- Hero / Logo -->
+  <header class="hero">
+    <svg class="hero-logo" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-label="Symphony of Nations Logo">
+      <defs>
+        <linearGradient id="whiteGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+          <stop offset="100%" style="stop-color:#c0c0c8;stop-opacity:1" />
+        </linearGradient>
+      </defs>
+      <!-- Globe -->
+      <circle cx="100" cy="100" r="55" fill="none" stroke="url(#whiteGrad)" stroke-width="1" opacity="0.35"/>
+      <ellipse cx="100" cy="100" rx="55" ry="22" fill="none" stroke="url(#whiteGrad)" stroke-width="0.7" opacity="0.25"/>
+      <ellipse cx="100" cy="100" rx="22" ry="55" fill="none" stroke="url(#whiteGrad)" stroke-width="0.7" opacity="0.25"/>
+      <line x1="45" y1="100" x2="155" y2="100" stroke="url(#whiteGrad)" stroke-width="0.7" opacity="0.25"/>
+      <line x1="100" y1="45" x2="100" y2="155" stroke="url(#whiteGrad)" stroke-width="0.7" opacity="0.25"/>
+      <!-- Treble clef -->
+      <path d="M95 155 C85 155, 80 148, 80 140 C80 132, 85 125, 95 125 C105 125, 110 132, 110 140 C110 148, 105 155, 95 155 Z M95 120 C90 120, 85 115, 85 108 C85 100, 92 95, 100 95 C108 95, 115 100, 115 108 C115 115, 110 120, 105 120 L105 80 C105 70, 100 60, 95 55 C92 52, 90 48, 90 45 C90 38, 95 35, 100 35 C105 35, 110 38, 110 45 C110 50, 107 54, 103 58 C100 62, 100 68, 100 75 L100 120" fill="none" stroke="url(#whiteGrad)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+      <!-- Staff lines -->
+      <line x1="30" y1="115" x2="170" y2="115" stroke="url(#whiteGrad)" stroke-width="0.5" opacity="0.2"/>
+      <line x1="30" y1="125" x2="170" y2="125" stroke="url(#whiteGrad)" stroke-width="0.5" opacity="0.2"/>
+      <line x1="30" y1="135" x2="170" y2="135" stroke="url(#whiteGrad)" stroke-width="0.5" opacity="0.2"/>
+      <line x1="30" y1="145" x2="170" y2="145" stroke="url(#whiteGrad)" stroke-width="0.5" opacity="0.2"/>
+      <line x1="30" y1="155" x2="170" y2="155" stroke="url(#whiteGrad)" stroke-width="0.5" opacity="0.2"/>
+      <!-- Notes -->
+      <ellipse cx="45" cy="135" rx="5" ry="4" fill="url(#whiteGrad)" opacity="0.5"/>
+      <line x1="50" y1="135" x2="50" y2="118" stroke="url(#whiteGrad)" stroke-width="0.8" opacity="0.5"/>
+      <ellipse cx="155" cy="125" rx="5" ry="4" fill="url(#whiteGrad)" opacity="0.5"/>
+      <line x1="150" y1="125" x2="150" y2="108" stroke="url(#whiteGrad)" stroke-width="0.8" opacity="0.5"/>
+      <!-- Laurels -->
+      <path d="M35 100 C30 85, 25 70, 35 55 C40 65, 42 80, 38 95" fill="none" stroke="url(#whiteGrad)" stroke-width="1" opacity="0.35"/>
+      <path d="M32 90 C28 78, 22 68, 30 58" fill="none" stroke="url(#whiteGrad)" stroke-width="0.7" opacity="0.25"/>
+      <path d="M165 100 C170 85, 175 70, 165 55 C160 65, 158 80, 162 95" fill="none" stroke="url(#whiteGrad)" stroke-width="1" opacity="0.35"/>
+      <path d="M168 90 C172 78, 178 68, 170 58" fill="none" stroke="url(#whiteGrad)" stroke-width="0.7" opacity="0.25"/>
+      <!-- Ribbon -->
+      <path d="M85 165 Q100 175, 115 165" fill="none" stroke="url(#whiteGrad)" stroke-width="0.8" opacity="0.3"/>
+    </svg>
+    <h1>Symphony of Nations</h1>
+    <p class="subtitle">Model United Nations</p>
+    <p class="hero-slogan">Leadership is not about being the loudest voice, but about bringing every voice together.</p>
+  </header>
+
+  <!-- Piano divider -->
+  <div class="piano-divider" aria-hidden="true">
+    <div class="piano-key white"></div>
+    <div class="piano-key black"></div>
+    <div class="piano-key white"></div>
+    <div class="piano-key black"></div>
+    <div class="piano-key white"></div>
+    <div class="piano-key white"></div>
+    <div class="piano-key black"></div>
+    <div class="piano-key white"></div>
+    <div class="piano-key black"></div>
+    <div class="piano-key white"></div>
+    <div class="piano-key black"></div>
+    <div class="piano-key white"></div>
+    <div class="piano-key white"></div>
+  </div>
+
+  <!-- What is MUN -->
+  <section class="section" id="about">
+    <div class="section-header">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+      <h2>What is Model United Nations?</h2>
+    </div>
+    <p>Model United Nations (MUN) is an educational simulation where participants step into the roles of diplomats representing member states of the United Nations. Delegates research global issues, debate international policy, draft resolutions, and negotiate with peers to address the world's most pressing challenges.</p>
+    <p>MUN cultivates critical thinking, public speaking, research skills, and cross-cultural understanding. It transforms young leaders into informed global citizens capable of navigating complex diplomatic landscapes.</p>
+
+    <h3>What You Will Gain</h3>
+    <div class="benefits-grid">
+      <div class="benefit-card">
+        <div class="benefit-num">01</div>
+        <div class="benefit-text">Public speaking & persuasive argumentation</div>
+      </div>
+      <div class="benefit-card">
+        <div class="benefit-num">02</div>
+        <div class="benefit-text">Research & analytical thinking</div>
+      </div>
+      <div class="benefit-card">
+        <div class="benefit-num">03</div>
+        <div class="benefit-text">Negotiation & consensus building</div>
+      </div>
+      <div class="benefit-card">
+        <div class="benefit-num">04</div>
+        <div class="benefit-text">Global awareness & cultural empathy</div>
+      </div>
+      <div class="benefit-card">
+        <div class="benefit-num">05</div>
+        <div class="benefit-text">Leadership & teamwork</div>
+      </div>
+      <div class="benefit-card">
+        <div class="benefit-num">06</div>
+        <div class="benefit-text">Professional networking & friendships</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Piano divider -->
+  <div class="piano-divider" aria-hidden="true">
+    <div class="piano-key white"></div>
+    <div class="piano-key black"></div>
+    <div class="piano-key white"></div>
+    <div class="piano-key black"></div>
+    <div class="piano-key white"></div>
+    <div class="piano-key white"></div>
+    <div class="piano-key black"></div>
+    <div class="piano-key white"></div>
+    <div class="piano-key black"></div>
+    <div class="piano-key white"></div>
+    <div class="piano-key black"></div>
+    <div class="piano-key white"></div>
+    <div class="piano-key white"></div>
+  </div>
+
+  <!-- Symphony Concept -->
+  <section class="section" id="concept">
+    <div class="section-header">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+      <h2>The Symphony Concept</h2>
+    </div>
+
+    <div class="concept-box">
+      Music does not demand that all instruments sound the same. It demands that they learn to listen to one another. Diplomacy works exactly the same way.
+    </div>
+
+    <h3>Organizing Committee</h3>
+    <div class="roles-grid">
+      <div class="role-card">
+        <span class="role-icon">🎼</span>
+        <div class="role-title">Secretary-General</div>
+        <div class="role-musical">The Conductor</div>
+        <p>Sets the tempo, unites the ensemble, and ensures every section performs in harmony.</p>
+      </div>
+      <div class="role-card">
+        <span class="role-icon">🎻</span>
+        <div class="role-title">Chairs</div>
+        <div class="role-musical">Section Leaders</div>
+        <p>Guide their sections through complex passages, maintaining tone and precision.</p>
+      </div>
+      <div class="role-card">
+        <span class="role-icon">🎺</span>
+        <div class="role-title">Delegates</div>
+        <div class="role-musical">The Orchestra</div>
+        <p>Each voice unique, together creating a powerful, unified performance.</p>
+      </div>
+    </div>
+
+    <h3>Ceremonies</h3>
+    <div class="ceremonies-row">
+      <div class="ceremony-card">
+        <div class="ceremony-num">I</div>
+        <div class="ceremony-name">Opening Overture</div>
+        <div class="ceremony-desc">The first notes that set the tone for the entire symphony — welcoming delegates and establishing the spirit of cooperation.</div>
+      </div>
+      <div class="ceremony-card">
+        <div class="ceremony-num">II</div>
+        <div class="ceremony-name">Intermission</div>
+        <div class="ceremony-desc">A pause for reflection, networking, and re-tuning before the second act of diplomacy begins.</div>
+      </div>
+      <div class="ceremony-card">
+        <div class="ceremony-num">III</div>
+        <div class="ceremony-name">Finale</div>
+        <div class="ceremony-desc">The crescendo of collective achievement — resolutions adopted, friendships forged, voices united.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Piano divider -->
+  <div class="piano-divider" aria-hidden="true">
+    <div class="piano-key white"></div>
+    <div class="piano-key black"></div>
+    <div class="piano-key white"></div>
+    <div class="piano-key black"></div>
+    <div class="piano-key white"></div>
+    <div class="piano-key white"></div>
+    <div class="piano-key black"></div>
+    <div class="piano-key white"></div>
+    <div class="piano-key black"></div>
+    <div class="piano-key white"></div>
+    <div class="piano-key black"></div>
+    <div class="piano-key white"></div>
+    <div class="piano-key white"></div>
+  </div>
+
+  <!-- Committees -->
+  <section class="section" id="committees">
+    <div class="section-header">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      <h2>Committees</h2>
+    </div>
+
+    <div class="committee-list">
+      <div class="committee-item">
+        <div class="committee-header" onclick="toggleCommittee(this)">
+          <span class="committee-name">General Assembly (GA)</span>
+          <div class="committee-meta">
+            <span class="committee-tag classic">Classic</span>
+            <svg class="toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+        </div>
+        <div class="committee-body">
+          <p>The General Assembly is the UN's most representative body, where delegates discuss global political, economic, humanitarian, and social issues. Representing the positions of their respective countries, delegates participate in debates, draft resolutions, negotiate with other delegations, and work toward consensus on the world's most pressing international challenges.</p>
+        </div>
+      </div>
+
+      <div class="committee-item">
+        <div class="committee-header" onclick="toggleCommittee(this)">
+          <span class="committee-name">Security Council (UNSC)</span>
+          <div class="committee-meta">
+            <span class="committee-tag classic">Classic</span>
+            <svg class="toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+        </div>
+        <div class="committee-body">
+          <p>The United Nations Security Council is responsible for maintaining international peace and security. Delegates address armed conflicts, threats to peace, terrorism, and international crises. The Council has the authority to adopt legally binding resolutions, including sanctions, peacekeeping operations, and other measures aimed at restoring stability.</p>
+        </div>
+      </div>
+
+      <div class="committee-item">
+        <div class="committee-header" onclick="toggleCommittee(this)">
+          <span class="committee-name">Economic and Social Council (ECOSOC)</span>
+          <div class="committee-meta">
+            <span class="committee-tag classic">Classic</span>
+            <svg class="toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+        </div>
+        <div class="committee-body">
+          <p>The Economic and Social Council serves as a platform for discussing sustainable development, the global economy, education, public health, technological innovation, and poverty reduction. Delegates collaborate to develop long-term solutions to the world's most significant social and economic challenges.</p>
+        </div>
+      </div>
+
+      <div class="committee-item">
+        <div class="committee-header" onclick="toggleCommittee(this)">
+          <span class="committee-name">Human Rights Council (UNHRC)</span>
+          <div class="committee-meta">
+            <span class="committee-tag classic">Classic</span>
+            <svg class="toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+        </div>
+        <div class="committee-body">
+          <p>The Human Rights Council focuses on the promotion and protection of human rights worldwide. Delegates examine human rights violations, discuss humanitarian crises, and propose mechanisms for international cooperation to prevent abuses and strengthen the protection of fundamental freedoms.</p>
+        </div>
+      </div>
+
+      <div class="committee-item">
+        <div class="committee-header" onclick="toggleCommittee(this)">
+          <span class="committee-name">Digital Governance Council</span>
+          <div class="committee-meta">
+            <span class="committee-tag new">New</span>
+            <svg class="toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+        </div>
+        <div class="committee-body">
+          <p>The Digital Governance Council is a forward-looking committee dedicated to the governance of the digital world. Delegates debate issues such as artificial intelligence, cybersecurity, data protection, digital sovereignty, combating disinformation, and the development of international norms for emerging technologies. The committee's primary objective is to strike a balance between innovation, security, and human rights.</p>
+        </div>
+      </div>
+
+      <div class="committee-item">
+        <div class="committee-header" onclick="toggleCommittee(this)">
+          <span class="committee-name">Board of Global CEOs</span>
+          <div class="committee-meta">
+            <span class="committee-tag new">New</span>
+            <svg class="toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+        </div>
+        <div class="committee-body">
+          <p>The Board of Global CEOs is an innovative committee in which delegates represent leading multinational corporations rather than sovereign states. Participants make high-level strategic business decisions, respond to global crises, foster international cooperation, and address issues including investment, sustainable development, technological innovation, and corporate responsibility. This committee combines diplomacy, business strategy, negotiation, and crisis management in a dynamic decision-making environment.</p>
+        </div>
+      </div>
+
+      <div class="committee-item">
+        <div class="committee-header" onclick="toggleCommittee(this)">
+          <span class="committee-name">International Court of Justice (ICJ)</span>
+          <div class="committee-meta">
+            <span class="committee-tag new">New</span>
+            <svg class="toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+        </div>
+        <div class="committee-body">
+          <p>The International Court of Justice (ICJ) is the principal judicial organ of the United Nations, responsible for resolving legal disputes between states under international law. Delegates assume the roles of legal representatives, judges, or legal advisers, examining evidence, interpreting international legal principles, and presenting well-reasoned legal arguments. This committee emphasizes rigorous legal analysis, persuasive advocacy, and judicial decision-making.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Piano divider -->
+  <div class="piano-divider" aria-hidden="true">
+    <div class="piano-key white"></div>
+    <div class="piano-key black"></div>
+    <div class="piano-key white"></div>
+    <div class="piano-key black"></div>
+    <div class="piano-key white"></div>
+    <div class="piano-key white"></div>
+    <div class="piano-key black"></div>
+    <div class="piano-key white"></div>
+    <div class="piano-key black"></div>
+    <div class="piano-key white"></div>
+    <div class="piano-key black"></div>
+    <div class="piano-key white"></div>
+    <div class="piano-key white"></div>
+  </div>
+
+  <!-- Registration -->
+  <section class="reg-section" id="register">
+    <h2>Join the Orchestra</h2>
+    <p>Every instrument matters. Every voice counts. Take your place in the Symphony of Nations.</p>
+    <div class="reg-buttons">
+      <a href="#" class="btn btn-primary">Register as Delegate</a>
+      <a href="#" class="btn">Register as Volunteer</a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-notes">♪ ♫ ♩ ♬</div>
+    <p>Symphony of Nations — Model United Nations</p>
+    <p style="margin-top:4px; font-size:12px;">Where diplomacy meets harmony</p>
+  </footer>
+
+</div>
+
+<script>
+  // Accordion
+  function toggleCommittee(header) {
+    const item = header.parentElement;
+    const wasOpen = item.classList.contains('open');
+    document.querySelectorAll('.committee-item').forEach(el => el.classList.remove('open'));
+    if (!wasOpen) item.classList.add('open');
+  }
+
+  // Scroll reveal
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.section').forEach(section => {
+    observer.observe(section);
+  });
+
+  // Smooth scroll for any internal links
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
+      e.preventDefault();
+      const target = document.querySelector(this.getAttribute('href'));
+      if (target) target.scrollIntoView({ behavior: 'smooth' });
+    });
+  });
+</script>
+
+</body>
+</html>
